@@ -22,7 +22,22 @@ Or install it yourself as:
 ```ruby
 module Search
   class User < Gyroscope::SearchBase
+    attribute :ids, Gyroscope::IntegerList
     attribute :name, String
+    
+    def build_search_scope
+      scope = super
+      
+      if ids.present?
+        scope = scope.where(id: ids)
+      end
+      
+      if name.present?
+        scope = scope.where(name: name)
+      end
+      
+      scope
+    end
   end
 end
 

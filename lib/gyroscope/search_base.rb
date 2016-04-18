@@ -21,12 +21,28 @@ module Gyroscope
       "::#{self.class.name.demodulize}".constantize
     end
 
+    class ValidationError < StandardError
+      attr_reader :searcher
+
+      def initialize(searcher)
+        @searcher = searcher
+      end
+
+      def message
+        "Check your default values for correctness"
+      end
+
+      def as_json(*)
+        { errors: searcher.errors }
+      end
+    end
+
     def search
       # is there a more generic ActiveModel validation error?
       unless valid?
         Rails.logger.debug("the errors: #{errors.inspect}")
       end
-      fail ActiveModel::ForbiddenAttributesError, "Check your default values for correctness" unless valid?
+      fail ValidationError.new(self) unless valid?
 
       build_search_scope
     end
